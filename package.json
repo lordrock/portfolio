@@ -1,0 +1,21 @@
+{
+  "name": "portfolio-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Personal brand portfolio — Next.js web app + Express API + CMS",
+  "workspaces": ["apps/*"],
+  "scripts": {
+    "dev": "concurrently -n api,web -c blue,magenta \"npm run dev -w apps/api\" \"npm run dev -w apps/web\"",
+    "dev:api": "npm run dev -w apps/api",
+    "dev:web": "npm run dev -w apps/web",
+    "build": "npm run build -w apps/web",
+    "start:api": "npm run start -w apps/api",
+    "start:web": "npm run start -w apps/web",
+    "seed": "npm run seed -w apps/api",
+    "admin:create": "npm run admin:create -w apps/api",
+    "backup": "npm run backup -w apps/api",
+    "test": "npm test -w apps/api"
+  },
+  "devDependencies": { "concurrently": "^9.0.1" },
+  "engines": { "node": ">=20.9" }
+}

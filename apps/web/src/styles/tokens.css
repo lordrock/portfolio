@@ -1,0 +1,66 @@
+/* Design tokens. Light = classic editorial (default). Dark = technical. Both target WCAG AA. */
+:root {
+  --font-sans: 'Instrument Sans Variable', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-serif: var(--font-sans);
+
+  --paper: #f3f4f0;
+  --surface: #fbfbf9;
+  --sunken: #e9ebe5;
+  --ink: #0f1722;
+  --ink-soft: #2b3544;
+  --muted: #566070;
+  --line: #d6dad2;
+  --line-strong: #aeb5a9;
+  --accent: #2037c9;
+  --accent-ink: #ffffff;
+  --accent-soft: #e3e7fb;
+  --focus: #2037c9;
+  --danger: #b3261e;
+  --success: #17703f;
+
+  /* pillar colours: identity, not decoration */
+  --p-design: #b81f6d;
+  --p-development: #2037c9;
+  --p-marketing: #9a5b00;
+  --p-web3: #0b7a6e;
+
+  --radius: 6px;
+  --radius-lg: 12px;
+  --measure: 64ch;
+  --gutter: clamp(1.25rem, 4vw, 3rem);
+  --max: 76rem;
+
+  --step--1: clamp(0.8rem, 0.78rem + 0.1vw, 0.875rem);
+  --step-0: clamp(1rem, 0.97rem + 0.15vw, 1.0625rem);
+  --step-1: clamp(1.2rem, 1.12rem + 0.4vw, 1.4rem);
+  --step-2: clamp(1.5rem, 1.3rem + 0.9vw, 2rem);
+  --step-3: clamp(2rem, 1.6rem + 1.8vw, 3rem);
+  --step-4: clamp(2.6rem, 1.8rem + 3.6vw, 4.8rem);
+  --step-5: clamp(3.1rem, 1.9rem + 5.6vw, 7rem);
+
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  --paper: #0a0e14;
+  --surface: #111720;
+  --sunken: #0d1219;
+  --ink: #e8ecf2;
+  --ink-soft: #c5ccd8;
+  --muted: #98a3b4;
+  --line: #222b38;
+  --line-strong: #38455a;
+  --accent: #8ea2ff;
+  --accent-ink: #0a0e14;
+  --accent-soft: #1a2342;
+  --focus: #a9b8ff;
+  --danger: #ff8f86;
+  --success: #6fd49b;
+
+  --p-design: #ff7cc0;
+  --p-development: #8ea2ff;
+  --p-marketing: #f0b45a;
+  --p-web3: #4fd8c4;
+
+  color-scheme: dark;
+}
