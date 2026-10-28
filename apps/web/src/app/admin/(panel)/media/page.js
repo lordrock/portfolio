@@ -1,12 +1,14 @@
 'use client';
-import { useRef, useState } from 'react';
+import { useDeferredValue, useRef, useState } from 'react';
 import { api } from '@/lib/adminApi';
 import { MEDIA_ACCEPT, fileBadge, isImageFile } from '@/lib/media';
 import { Confirm, PageHeader, useLoad, useToast } from '@/components/admin/ui';
 
 export default function Page() {
   const toast = useToast();
-  const { data, error, loading, reload } = useLoad('/media?limit=100');
+  const [search, setSearch] = useState('');
+  const deferredSearch = useDeferredValue(search.trim());
+  const { data, error, loading, reload } = useLoad(`/media?limit=100${deferredSearch ? `&q=${encodeURIComponent(deferredSearch)}` : ''}`);
   const [busy, setBusy] = useState(false);
   const [dragging, setDragging] = useState(false);
   const ref = useRef(null);
@@ -39,6 +41,15 @@ export default function Page() {
         <div><strong>{busy ? 'Uploading files…' : 'Drop files here'}</strong><p>Images, PDF, Word, Excel, PowerPoint, OpenDocument, TXT, Markdown or CSV.</p></div>
         <label className="btn btn-primary" htmlFor="media-upload">Choose files</label>
       </div>
+      <div className="a-media-search">
+        <label htmlFor="media-search">Search media</label>
+        <div className="a-search-input">
+          <span aria-hidden="true">⌕</span>
+          <input id="media-search" type="search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Start typing a filename, alt text or file type…" autoComplete="off" />
+          {search ? <button type="button" className="btn btn-quiet btn-sm" onClick={() => setSearch('')} aria-label="Clear media search">Clear</button> : null}
+        </div>
+        <p className="a-hint" aria-live="polite">{deferredSearch ? `${data?.total ?? 0} file${data?.total === 1 ? '' : 's'} beginning with “${deferredSearch}”` : `${data?.total ?? 0} files in the library`}</p>
+      </div>
       {error ? <p className="a-error" role="alert">{error}</p> : null}
       {loading ? <p role="status">Loading…</p> : data?.items?.length ? (
         <ul className="a-media-lib">
@@ -55,7 +66,7 @@ export default function Page() {
             </li>
           ))}
         </ul>
-      ) : <p className="a-empty">No files yet. Drop an image or document above.</p>}
+      ) : <p className="a-empty">{deferredSearch ? `No files begin with “${deferredSearch}”. Try another search.` : 'No files yet. Drop an image or document above.'}</p>}
     </>
   );
 }

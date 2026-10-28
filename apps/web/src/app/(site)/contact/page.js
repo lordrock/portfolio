@@ -5,10 +5,11 @@ import Availability from '@/components/Availability';
 export const metadata = { title: 'Contact', description: 'Send a project inquiry or get in touch.', alternates: { canonical: '/contact' } };
 
 export default async function Contact({ searchParams }) {
+  const query = await searchParams;
   const [site, res] = await Promise.all([apiGet('/site', { revalidate: 30 }), apiGet('/services')]);
   const services = res?.items || [];
-  const wanted = typeof searchParams?.service === 'string' ? searchParams.service : '';
-  const pillar = typeof searchParams?.pillar === 'string' ? searchParams.pillar : '';
+  const wanted = typeof query?.service === 'string' ? query.service : '';
+  const pillar = typeof query?.pillar === 'string' ? query.pillar : '';
   const defaultTopic = (services.find((s) => s.slug === wanted) || services.find((s) => pillar && s.pillar?.slug === pillar))?.title || '';
   const p = site?.profile;
   return (

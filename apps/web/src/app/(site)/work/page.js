@@ -9,7 +9,8 @@ export const metadata = { title: 'Work', description: 'Design, software, marketi
 const first = (v) => (Array.isArray(v) ? v[0] : v) || '';
 
 export default async function WorkHub({ searchParams }) {
-  const sp = Object.fromEntries(Object.entries(searchParams || {}).map(([k, v]) => [k, first(v)]));
+  const query = await searchParams;
+  const sp = Object.fromEntries(Object.entries(query || {}).map(([k, v]) => [k, first(v)]));
   const qs = new URLSearchParams();
   ['pillar', 'sub', 'tech', 'q', 'sort', 'page'].forEach((k) => sp[k] && qs.set(k, String(sp[k]).slice(0, 80)));
   qs.set('limit', '12');

@@ -76,7 +76,11 @@ export default function WorkEditor({ id }) {
   }, [isNew, pillars, form.type, form.primaryCategory]);
 
   const payload = useCallback(() => {
+    // Work URLs are generated and owned by the API. Keeping slugs out of the
+    // editor prevents accidental URL breakage and duplicate-slug errors.
     const p = { ...form };
+    delete p.slug;
+    delete p.previousSlugs;
     p.categories = form.categories.filter((c) => c !== form.primaryCategory);
     p.subcategories = form.subcategories.filter((s) => subs.some((x) => x._id === s));
     if (!p.cover?.url) p.cover = null;
@@ -146,7 +150,7 @@ export default function WorkEditor({ id }) {
             <div className="a-grid">
               <SelectField label="What kind of work is this?" value={form.type} onChange={(v) => set('type', v)} options={TYPES} hint="Decides which fields and page layout are used." wide />
               <TextField label="Title" value={form.title} onChange={(v) => set('title', v)} wide required />
-              <TextField label="URL slug" value={form.slug} onChange={(v) => set('slug', v)} hint={status === 'published' ? 'If you change this, the old address redirects to the new one.' : 'Leave empty to generate from the title.'} placeholder="auto-generated" />
+              {meta && form.slug ? <div className="a-field"><span className="a-label">Public URL</span><p className="a-hint"><a href={`/work/${form.slug}`} target="_blank" rel="noopener noreferrer">/work/{form.slug}</a> <span className="sr-only">(opens in a new tab)</span></p></div> : null}
               <TextField label="Year or date range" value={form.dateLabel} onChange={(v) => set('dateLabel', v)} placeholder="2026 or Mar to Jun 2026" />
               <TextArea label="Summary (shown on cards and in search results)" value={form.summary} onChange={(v) => set('summary', v)} rows={3} maxLength={500} hint="Required to publish. Be specific and truthful." />
             </div>

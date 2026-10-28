@@ -11,6 +11,7 @@ import { env } from '../../config/env.js';
 
 const clamp = (v, d, min, max) => Math.min(max, Math.max(min, Number.parseInt(v, 10) || d));
 const one = (v) => (typeof v === 'string' ? v : '');
+const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 /* ---------------------------------------------------------------- Overview */
 export const overview = Router();
@@ -137,6 +138,11 @@ media.get(
     const q = {};
     if (one(req.query.type) === 'image') q.resourceType = 'image';
     if (one(req.query.type) === 'document') q.resourceType = 'raw';
+    const search = one(req.query.q).trim().slice(0, 100);
+    if (search) {
+      const startsWith = new RegExp(`^${escapeRegex(search)}`, 'i');
+      q.$or = [{ filename: startsWith }, { alt: startsWith }, { format: startsWith }];
+    }
     const page = clamp(req.query.page, 1, 1, 10_000);
     const limit = clamp(req.query.limit, 40, 1, 100);
     const [items, total] = await Promise.all([

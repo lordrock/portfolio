@@ -16,8 +16,9 @@ async function load(slug, preview) {
 }
 
 export async function generateMetadata({ params, searchParams }) {
-  const preview = typeof searchParams?.preview === 'string' ? searchParams.preview : '';
-  const data = await load(params.slug, preview);
+  const [{ slug }, query] = await Promise.all([params, searchParams]);
+  const preview = typeof query?.preview === 'string' ? query.preview : '';
+  const data = await load(slug, preview);
   if (!data || data.__notFound || data.redirectTo) return { title: 'Work' };
   const w = data.work;
   const title = w.seo?.title || w.title;
@@ -35,8 +36,9 @@ export async function generateMetadata({ params, searchParams }) {
 }
 
 export default async function WorkDetail({ params, searchParams }) {
-  const preview = typeof searchParams?.preview === 'string' ? searchParams.preview : '';
-  const data = await load(params.slug, preview);
+  const [{ slug }, query] = await Promise.all([params, searchParams]);
+  const preview = typeof query?.preview === 'string' ? query.preview : '';
+  const data = await load(slug, preview);
   if (!data || data.__notFound) notFound();
   if (data.redirectTo) permanentRedirect(`/work/${data.redirectTo}`);
 

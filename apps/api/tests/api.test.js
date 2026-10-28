@@ -75,9 +75,10 @@ test('owner creates a draft; it is invisible to the public', async () => {
   assert.equal(list.body.total, 0);
 });
 
-test('duplicate slug is blocked', async () => {
-  const res = await owner.post(`${api}/admin/works`).set('x-csrf-token', csrf).send(workBody({ slug: 'test-project' }));
-  assert.equal(res.status, 409);
+test('duplicate titles receive unique generated slugs', async () => {
+  const res = await owner.post(`${api}/admin/works`).set('x-csrf-token', csrf).send(workBody({ slug: 'client-value-is-ignored' }));
+  assert.equal(res.status, 201);
+  assert.equal(res.body.slug, 'test-project-2');
 });
 
 test('preview token shows the draft; wrong token does not', async () => {
@@ -132,12 +133,13 @@ test('absent campaign metrics are never exposed as zeros; unpermitted metrics ar
   assert.deepEqual(pb.body.work.marketing.metrics, [], 'metrics hidden without permission');
 });
 
-test('slug rename keeps the old URL working via redirect info', async () => {
+test('published work URLs remain stable when the title or client slug changes', async () => {
   const w = await Work.findOne({ slug: 'cross-over' });
-  const res = await owner.put(`${api}/admin/works/${w._id}`).set('x-csrf-token', csrf).send(workBody({ title: 'Cross Over', slug: 'crossover-renamed', categories: [String(web3._id)] }));
+  const res = await owner.put(`${api}/admin/works/${w._id}`).set('x-csrf-token', csrf).send(workBody({ title: 'Cross Over Renamed', slug: 'crossover-renamed', categories: [String(web3._id)] }));
   assert.equal(res.status, 200);
-  const old = await request(app).get(`${api}/public/works/cross-over`);
-  assert.equal(old.body.redirectTo, 'crossover-renamed');
+  assert.equal(res.body.slug, 'cross-over');
+  assert.equal((await request(app).get(`${api}/public/works/cross-over`)).status, 200);
+  assert.equal((await request(app).get(`${api}/public/works/crossover-renamed`)).status, 404);
 });
 
 test('unsafe URLs and mass-assignment are rejected/stripped', async () => {

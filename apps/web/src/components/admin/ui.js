@@ -1,5 +1,5 @@
 'use client';
-import { createContext, useCallback, useContext, useEffect, useId, useRef, useState } from 'react';
+import { createContext, useCallback, useContext, useDeferredValue, useEffect, useId, useRef, useState } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { api, getIn } from '@/lib/adminApi';
 import { DOCUMENT_ACCEPT, IMAGE_ACCEPT, fileBadge } from '@/lib/media';
@@ -174,14 +174,20 @@ export function Confirm({ children, message, onConfirm, className = 'btn btn-qui
 /* ----------------------------------------------------------- Media picking */
 export function MediaPicker({ open, onOpenChange, onPick, kind = 'image' }) {
   const [items, setItems] = useState([]);
+  const [search, setSearch] = useState('');
+  const deferredSearch = useDeferredValue(search.trim());
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [dragging, setDragging] = useState(false);
   const fileRef = useRef(null);
 
   const load = useCallback(async () => {
-    try { setItems((await api(`/media?type=${kind}&limit=60`)).items); } catch (e) { setError(e.message); }
-  }, [kind]);
+    try {
+      setError('');
+      const query = deferredSearch ? `&q=${encodeURIComponent(deferredSearch)}` : '';
+      setItems((await api(`/media?type=${kind}&limit=60${query}`)).items);
+    } catch (e) { setError(e.message); }
+  }, [kind, deferredSearch]);
   useEffect(() => { if (open) load(); }, [open, load]);
 
   async function upload(file) {
@@ -219,6 +225,14 @@ export function MediaPicker({ open, onOpenChange, onPick, kind = 'image' }) {
               <span>{busy ? 'Uploading…' : 'Drop a file here or'}</span>
               <label className="btn btn-quiet btn-sm" htmlFor={`picker-upload-${kind}`}>Choose file</label>
             </div>
+            <div className="a-media-search a-media-search-compact">
+              <label htmlFor={`picker-search-${kind}`}>Search existing {kind === 'document' ? 'documents' : 'images'}</label>
+              <div className="a-search-input">
+                <span aria-hidden="true">⌕</span>
+                <input id={`picker-search-${kind}`} type="search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Start typing a filename or alt text…" autoComplete="off" />
+                {search ? <button type="button" className="btn btn-quiet btn-sm" onClick={() => setSearch('')} aria-label="Clear media search">Clear</button> : null}
+              </div>
+            </div>
             {error ? <p className="a-error" role="alert">{error}</p> : null}
             {items.length ? (
               <ul className="a-media-grid">
@@ -231,7 +245,7 @@ export function MediaPicker({ open, onOpenChange, onPick, kind = 'image' }) {
                   </li>
                 ))}
               </ul>
-            ) : <p className="a-empty">No files yet. Upload one above.</p>}
+            ) : <p className="a-empty">{deferredSearch ? `No ${kind === 'document' ? 'documents' : 'images'} begin with “${deferredSearch}”.` : 'No files yet. Upload one above.'}</p>}
           </div>
           <div className="a-dialog-actions a-dialog-foot"><Dialog.Close className="btn btn-quiet">Close</Dialog.Close></div>
         </Dialog.Content>

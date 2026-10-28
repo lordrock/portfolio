@@ -4,7 +4,7 @@ import { validate } from '../../middleware/validate.js';
 import { asyncHandler, notFound } from '../../lib/errors.js';
 import { audit } from '../../lib/audit.js';
 import { workSchema } from '../../schemas/index.js';
-import { slugify, uniqueSlug } from '../../lib/slug.js';
+import { uniqueSlug } from '../../lib/slug.js';
 import { signPreview } from '../../lib/tokens.js';
 
 const r = Router();
@@ -55,12 +55,9 @@ r.post(
     const bad = await checkCategories(req.body);
     if (bad) return res.status(400).json({ error: bad });
     const data = { ...req.body, status: 'draft' };
-    if (data.slug) {
-      data.slug = slugify(data.slug);
-      if (await Work.exists({ slug: data.slug })) return res.status(409).json({ error: `Slug "${data.slug}" is already in use.` });
-    } else {
-      data.slug = await uniqueSlug(Work, data.title);
-    }
+    // The URL is generated once and remains stable. Editors never need to
+    // understand or manage slugs, and duplicate titles receive -2, -3, etc.
+    data.slug = await uniqueSlug(Work, data.title);
     if (!data.cover) delete data.cover;
     const doc = await Work.create(data);
     await audit(req, 'create', 'Work', doc._id, doc.title);
@@ -77,16 +74,7 @@ r.put(
     const bad = await checkCategories(req.body);
     if (bad) return res.status(400).json({ error: bad });
 
-    const data = { ...req.body };
-    const wanted = slugify(data.slug || doc.slug);
-    if (wanted !== doc.slug) {
-      if (await Work.exists({ slug: wanted, _id: { $ne: doc._id } })) {
-        return res.status(409).json({ error: `Slug "${wanted}" is already in use.` });
-      }
-      // Preserve inbound links: old URL will redirect to the new canonical one.
-      if (doc.status === 'published') doc.previousSlugs = [...new Set([...doc.previousSlugs, doc.slug])].filter((s) => s !== wanted);
-    }
-    data.slug = wanted;
+    const data = { ...req.body, slug: doc.slug };
     if (!data.cover) data.cover = undefined;
     doc.set(data);
     await doc.save();
