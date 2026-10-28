@@ -10,7 +10,6 @@ const nextConfig = {
   distDir: process.env.NODE_ENV === 'development' ? '.next-dev' : '.next',
   async rewrites() {
     return [
-      { source: '/api/v1/:path*', destination: `${API_URL}/api/v1/:path*` },
       { source: '/uploads/:path*', destination: `${API_URL}/uploads/:path*` },
     ];
   },
