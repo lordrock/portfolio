@@ -2,7 +2,7 @@ import { Router } from 'express';
 import bcrypt from 'bcryptjs';
 import { Admin } from '../../models/index.js';
 import { validate } from '../../middleware/validate.js';
-import { loginLimiter } from '../../middleware/rateLimits.js';
+import { loginLimiter, loginSharedLimiter } from '../../middleware/rateLimits.js';
 import { requireAdmin } from '../../middleware/auth.js';
 import { asyncHandler } from '../../lib/errors.js';
 import { CSRF_COOKIE, SESSION_COOKIE, cookieOptions, newCsrfToken, signSession } from '../../lib/tokens.js';
@@ -27,6 +27,7 @@ function startSession(res, admin) {
 r.post(
   '/login',
   loginLimiter,
+  loginSharedLimiter,
   validate(loginSchema),
   asyncHandler(async (req, res) => {
     const { email, password } = req.body;

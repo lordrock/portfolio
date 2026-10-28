@@ -16,6 +16,7 @@ const schema = z.object({
   MONGODB_RETRY_MAX_MS: z.coerce.number().int().min(1000).default(30000),
   PUBLIC_CACHE_TTL_MS: z.coerce.number().int().min(1000).max(3600000).default(60000),
   PUBLIC_CACHE_MAX_ENTRIES: z.coerce.number().int().min(10).max(5000).default(250),
+  REDIS_URL: z.string().optional(),
   JWT_SECRET: z.string().optional(),
   CLIENT_ORIGINS: z.string().default('http://localhost:3000'),
   PUBLIC_SITE_URL: z.string().default('http://localhost:3000'),

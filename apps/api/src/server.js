@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import { env } from './config/env.js';
 import { createApp } from './app.js';
+import { connectRedis, disconnectRedis } from './lib/redis.js';
 
 mongoose.set('strictQuery', true);
 
@@ -41,6 +42,9 @@ async function main() {
 
   // Do not make HTTP availability depend on a single DNS/network attempt.
   connectDatabase();
+  // Redis is optional. Public reads and rate limits retain an in-process
+  // fallback while the shared store connects or recovers.
+  connectRedis();
 
   const shutdown = async (sig) => {
     if (shuttingDown) return;
@@ -48,6 +52,7 @@ async function main() {
     console.log(`[api] ${sig} received, shutting down`);
     server.close(async () => {
       await mongoose.disconnect();
+      await disconnectRedis();
       process.exit(0);
     });
     setTimeout(() => process.exit(1), 10_000).unref();

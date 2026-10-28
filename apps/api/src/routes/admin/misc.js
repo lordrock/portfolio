@@ -6,7 +6,7 @@ import { asyncHandler, notFound } from '../../lib/errors.js';
 import { audit } from '../../lib/audit.js';
 import { inquiryUpdateSchema, mediaUpdateSchema, profileSchema, resumeSchema } from '../../schemas/index.js';
 import { removeStored, storeFile } from '../../lib/storage.js';
-import { uploadLimiter } from '../../middleware/rateLimits.js';
+import { uploadLimiter, uploadSharedLimiter } from '../../middleware/rateLimits.js';
 import { env } from '../../config/env.js';
 
 const clamp = (v, d, min, max) => Math.min(max, Math.max(min, Number.parseInt(v, 10) || d));
@@ -149,6 +149,7 @@ media.get(
 media.post(
   '/',
   uploadLimiter,
+  uploadSharedLimiter,
   upload.single('file'),
   asyncHandler(async (req, res) => {
     if (!req.file) return res.status(400).json({ error: 'No file received (field name must be "file")' });

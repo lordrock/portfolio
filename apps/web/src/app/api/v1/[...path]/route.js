@@ -48,7 +48,10 @@ async function proxy(request, context) {
 
     const responseHeaders = new Headers();
     upstream.headers.forEach((value, name) => {
-      if (!HOP_BY_HOP_HEADERS.has(name.toLowerCase()) && name.toLowerCase() !== 'set-cookie') {
+      if (
+        !HOP_BY_HOP_HEADERS.has(name.toLowerCase())
+        && !['set-cookie', 'content-length', 'content-encoding'].includes(name.toLowerCase())
+      ) {
         responseHeaders.append(name, value);
       }
     });
@@ -68,7 +71,11 @@ async function proxy(request, context) {
       responseHeaders.append('vary', 'Cookie');
     }
 
-    return new Response(upstream.body, {
+    // Buffering avoids a platform-specific streamed-body issue where Netlify
+    // can preserve the upstream 200 status while delivering an empty/truncated
+    // body. Let Next recalculate content length and encoding for the response.
+    const responseBody = request.method === 'HEAD' ? null : await upstream.arrayBuffer();
+    return new Response(responseBody, {
       status: upstream.status,
       statusText: upstream.statusText,
       headers: responseHeaders,

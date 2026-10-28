@@ -3,7 +3,7 @@ import crypto from 'node:crypto';
 import { Article, Category, Experience, Inquiry, Profile, Service, Skill, Testimonial, Work } from '../models/index.js';
 import { asyncHandler, notFound } from '../lib/errors.js';
 import { validate } from '../middleware/validate.js';
-import { inquiryLimiter } from '../middleware/rateLimits.js';
+import { inquiryLimiter, inquirySharedLimiter } from '../middleware/rateLimits.js';
 import { inquirySchema } from '../schemas/index.js';
 import { verifyPreview } from '../lib/tokens.js';
 import { notifyOwnerOfInquiry } from '../lib/email.js';
@@ -229,6 +229,7 @@ r.get(
 r.post(
   '/inquiries',
   inquiryLimiter,
+  inquirySharedLimiter,
   validate(inquirySchema),
   asyncHandler(async (req, res) => {
     const { website, startedAt, ...data } = req.body;

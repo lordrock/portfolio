@@ -5,7 +5,7 @@ import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
 import mongoose from 'mongoose';
 import { env } from './config/env.js';
-import { globalLimiter } from './middleware/rateLimits.js';
+import { globalLimiter, globalSharedLimiter } from './middleware/rateLimits.js';
 import { publicResponseCache } from './middleware/responseCache.js';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
 import { uploadRoot } from './lib/storage.js';
@@ -32,6 +32,7 @@ export function createApp() {
     })
   );
   app.use(globalLimiter);
+  app.use(globalSharedLimiter);
   app.use(express.json({ limit: '200kb' }));
   app.use(cookieParser());
 

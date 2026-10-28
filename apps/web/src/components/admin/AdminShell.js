@@ -37,7 +37,12 @@ export default function AdminShell({ children }) {
     let alive = true;
     api('/auth/me')
       .then((r) => {
-        if (alive) setAdmin(r.admin);
+        if (!alive) return;
+        if (!r?.admin) {
+          setSessionError('The server returned an incomplete session response. Please try again.');
+          return;
+        }
+        setAdmin(r.admin);
       })
       .catch((error) => {
         if (!alive) return;

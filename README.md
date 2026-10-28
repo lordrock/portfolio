@@ -95,6 +95,7 @@ Recommended: **API on Render/Railway/Fly**, **web on Vercel or Render**, **Mongo
 | `RESEND_API_KEY`, `MAIL_FROM`, `OWNER_EMAIL` | verify your sending domain in Resend first |
 | `REVALIDATE_URL` | `https://yourname.com/api/revalidate` |
 | `REVALIDATE_SECRET` | same value as the web app |
+| `REDIS_URL` | optional `redis://` or `rediss://` connection URL for shared cache and distributed rate limits |
 
 After first deploy run once (from a shell on the API service): `npm run seed` (optional) and `npm run admin:create`.
 
@@ -111,6 +112,21 @@ If the production database already contains the single owner account under an ol
 
 `API_URL` must be set **at build time and runtime** (the rewrite is compiled in).
 Note: if you host the web app on Vercel and keep uploads on Cloudinary, nothing else is needed. Do **not** rely on local-disk uploads in production — container disks are ephemeral.
+
+### Monorepo deployment filters
+
+The root `netlify.toml` skips Netlify builds unless `apps/web`, the root package manifests, or the Netlify configuration changed. For the existing Render API service, configure **Settings → Build & Deploy → Build Filters → Included Paths** with:
+
+```text
+apps/api/**
+package.json
+```
+
+Render build filters are relative to the repository root. Manual deploys and service-setting changes still deploy intentionally.
+
+### Redis behaviour
+
+Redis is optional. With `REDIS_URL` configured, public JSON responses use a shared Redis cache and the global, login, inquiry and upload limits gain a distributed Redis layer. The per-process LRU cache and rate limiters remain active as a fallback, so a Redis outage does not take the API offline. `/api/v1/health` reports the cache backend as `connected`, `connecting`, `disconnected`, or `not-configured`.
 
 ### Backups, restore, rollback (MVP-10)
 * `npm run backup` writes JSON dumps of every collection to `apps/api/backups/<timestamp>/`. Restore with `npm run restore -- backups/<timestamp>` (replaces those collections). Schedule it (cron/GitHub Action) **and** enable Atlas continuous/snapshot backups. **Practise a restore into a scratch database before launch.**
