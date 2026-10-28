@@ -59,6 +59,15 @@ async function proxy(request, context) {
     const cookies = upstream.headers.getSetCookie?.() || [];
     for (const cookie of cookies) responseHeaders.append('set-cookie', cookie);
 
+    // Authentication and CMS responses must never be stored by Netlify's edge
+    // cache. A cached anonymous 401 can otherwise be replayed immediately after
+    // a successful login and make the UI appear to bounce back to /admin/login.
+    if (pathname.startsWith('admin/')) {
+      responseHeaders.set('cache-control', 'private, no-store, max-age=0');
+      responseHeaders.set('pragma', 'no-cache');
+      responseHeaders.append('vary', 'Cookie');
+    }
+
     return new Response(upstream.body, {
       status: upstream.status,
       statusText: upstream.statusText,

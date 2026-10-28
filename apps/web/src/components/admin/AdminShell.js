@@ -30,11 +30,20 @@ export default function AdminShell({ children }) {
   const router = useRouter();
   const pathname = usePathname();
   const [admin, setAdmin] = useState(null);
+  const [sessionError, setSessionError] = useState('');
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
     let alive = true;
-    api('/auth/me').then((r) => alive && setAdmin(r.admin)).catch(() => router.replace('/admin/login'));
+    api('/auth/me')
+      .then((r) => {
+        if (alive) setAdmin(r.admin);
+      })
+      .catch((error) => {
+        if (!alive) return;
+        if (error.status === 401) router.replace('/admin/login');
+        else setSessionError(error.message || 'Could not verify your session. Please refresh and try again.');
+      });
     const onUnauth = () => router.replace('/admin/login');
     window.addEventListener('admin:unauthorized', onUnauth);
     return () => { alive = false; window.removeEventListener('admin:unauthorized', onUnauth); };
@@ -45,6 +54,7 @@ export default function AdminShell({ children }) {
     try { await api('/auth/logout', { method: 'POST' }); } catch {}
     router.replace('/admin/login');
   }
+  if (sessionError) return <div className="a-loading"><p className="a-error" role="alert">{sessionError}</p><button type="button" className="btn btn-quiet" onClick={() => window.location.reload()}>Try again</button></div>;
   if (!admin) return <div className="a-loading" role="status">Checking your session…</div>;
 
   const active = (href) => (href === '/admin' ? pathname === '/admin' : pathname.startsWith(href));

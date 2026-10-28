@@ -1,10 +1,8 @@
 'use client';
-import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { api } from '@/lib/adminApi';
 
 export default function Login() {
-  const router = useRouter();
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -15,7 +13,9 @@ export default function Login() {
     setBusy(true); setError('');
     try {
       await api('/auth/login', { method: 'POST', body: { email: String(f.get('email')), password: String(f.get('password')) } });
-      router.replace('/admin');
+      // A full navigation starts the protected admin tree with the newly-set
+      // cookies and avoids reusing an anonymous prefetched Router Cache entry.
+      window.location.replace('/admin');
     } catch (err) {
       setError(err.message);
       setBusy(false);
