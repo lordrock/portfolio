@@ -22,7 +22,21 @@ export async function api(path, { method = 'GET', body, form } = {}) {
     headers['Content-Type'] = 'application/json';
     payload = JSON.stringify(body);
   }
-  const res = await fetch(`/api/v1/admin${path}`, { method, headers, body: payload, credentials: 'same-origin' });
+  const request = () => fetch(`/api/v1/admin${path}`, { method, headers, body: payload, credentials: 'same-origin', cache: 'no-store' });
+  let res;
+  try {
+    res = await request();
+    // Read-only admin requests are safe to replay once when a sleeping backend
+    // or a brief Netlify-to-Render interruption returns a gateway/service error.
+    if (method === 'GET' && [502, 503, 504].includes(res.status)) {
+      await new Promise((resolve) => setTimeout(resolve, 900));
+      res = await request();
+    }
+  } catch (error) {
+    if (method !== 'GET') throw error;
+    await new Promise((resolve) => setTimeout(resolve, 900));
+    res = await request();
+  }
   const data = await res.json().catch(() => null);
   if (!res.ok) {
     if (res.status === 401 && !path.startsWith('/auth/login') && typeof window !== 'undefined') {
