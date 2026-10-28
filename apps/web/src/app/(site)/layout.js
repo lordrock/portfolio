@@ -6,11 +6,15 @@ export const revalidate = 60;
 
 export default async function SiteLayout({ children }) {
   const site = await getSite();
-  const profile = site.profile;
+  const profile = site?.profile || null;
   return (
     <>
       <a href="#main" className="skip-link">Skip to content</a>
-      <Header name={profile?.name || 'Portfolio'} hasArticles={site.hasArticles} hasResume />
+      <Header
+        name={profile?.name || 'Portfolio'}
+        hasArticles={Boolean(site?.hasArticles)}
+        hasResume={Boolean(profile?.resume?.url)}
+      />
       <main id="main">
         {site.__offline ? (
           <div className="container"><p className="notice" role="status">Content is temporarily unavailable. Please refresh in a moment.</p></div>

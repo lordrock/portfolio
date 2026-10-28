@@ -362,7 +362,7 @@ code { font-size: 0.9em; word-break: break-all; }
 .contact-aside h2 { font-family: var(--font-sans); font-size: 0.9rem; font-weight: 600; color: var(--muted); margin-top: 1.25rem; letter-spacing: 0; }
 @media (max-width: 620px) { .contact-form-row { grid-template-columns: 1fr; } }
 
-/* ---------- Insights ---------- */
+/* ---------- Articles ---------- */
 .article-list li { border-top: 1px solid var(--line-strong); }
 .article-list li:last-child { border-bottom: 1px solid var(--line-strong); }
 .article-list a { display: flex; justify-content: space-between; gap: 2rem; padding-block: 1.75rem; text-decoration: none; }

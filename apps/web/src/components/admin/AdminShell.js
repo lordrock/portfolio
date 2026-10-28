@@ -10,7 +10,7 @@ const NAV = [
   { group: 'Overview', items: [{ href: '/admin', label: 'Dashboard' }] },
   { group: 'Content', items: [
     { href: '/admin/works', label: 'Work' },
-    { href: '/admin/articles', label: 'Insights' },
+    { href: '/admin/articles', label: 'Articles' },
     { href: '/admin/services', label: 'Services' },
     { href: '/admin/testimonials', label: 'Testimonials' },
     { href: '/admin/categories', label: 'Categories' },

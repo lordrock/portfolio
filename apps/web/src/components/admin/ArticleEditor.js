@@ -38,7 +38,7 @@ export default function ArticleEditor({ id }) {
   const status = meta?.status || 'draft';
   return (
     <>
-      <PageHeader title={isNew ? 'New article' : form.title || 'Edit article'} sub={meta ? `Last saved ${fmtDate(meta.updatedAt)}` : 'Not saved yet'}><Link href="/admin/articles" className="btn btn-quiet">Back to Insights</Link></PageHeader>
+      <PageHeader title={isNew ? 'New article' : form.title || 'Edit article'} sub={meta ? `Last saved ${fmtDate(meta.updatedAt)}` : 'Not saved yet'}><Link href="/admin/articles" className="btn btn-quiet">Back to articles</Link></PageHeader>
       {error ? <p className="a-error" role="alert">{error}</p> : null}
       <div className="a-editor">
         <div className="a-editor-main">
@@ -65,7 +65,7 @@ export default function ArticleEditor({ id }) {
           <section className="a-card a-sticky">
             <h2>Publishing</h2>
             <p>Status: <StatusBadge status={status} /></p>
-            <p className="a-hint">Insights appears in the site navigation as soon as one article is published.</p>
+            <p className="a-hint">The Articles page appears in the site navigation as soon as one article is published.</p>
             <div className="a-stack">
               <button type="button" className="btn btn-primary" onClick={onSave} disabled={Boolean(busy)}>{busy === 'save' ? 'Saving…' : 'Save'}</button>
               {status === 'draft' ? <button type="button" className="btn btn-quiet" onClick={act('publish', 'Published')} disabled={Boolean(busy)}>Publish</button> : null}
@@ -74,7 +74,7 @@ export default function ArticleEditor({ id }) {
               {status === 'archived' ? <button type="button" className="btn btn-quiet" onClick={act('restore', 'Restored as a draft')} disabled={Boolean(busy)}>Restore as draft</button> : null}
               {status === 'draft' && !isNew ? <Confirm className="btn btn-quiet a-danger" message="This permanently deletes the draft." onConfirm={onDelete}>Delete draft</Confirm> : null}
             </div>
-            {status === 'published' ? <p className="a-hint"><Link href={`/insights/${form.slug}`} target="_blank">View live article</Link></p> : null}
+            {status === 'published' ? <p className="a-hint"><Link href={`/articles/${form.slug}`} target="_blank">View live article</Link></p> : null}
           </section>
         </aside>
       </div>

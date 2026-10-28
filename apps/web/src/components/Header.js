@@ -8,7 +8,7 @@ export default function Header({ name, hasArticles, hasResume }) {
     { href: '/about', label: 'About' },
     { href: '/work', label: 'Work' },
     { href: '/services', label: 'Services' },
-    ...(hasArticles ? [{ href: '/insights', label: 'Insights' }] : []),
+    ...(hasArticles ? [{ href: '/articles', label: 'Articles' }] : []),
     { href: '/contact', label: 'Contact' },
   ];
   return (

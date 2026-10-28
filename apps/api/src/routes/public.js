@@ -59,7 +59,7 @@ r.get(
       profile: profile || null,
       pillars: pillars.map((p) => ({ ...p, count: pc.get(String(p._id)) || 0 })),
       subcategories: subs.map((s) => ({ ...s, count: sc.get(String(s._id)) || 0 })).filter((s) => s.count > 0),
-      hasArticles: articleCount > 0, // Insights nav only appears once there's something to read
+      hasArticles: articleCount > 0, // Articles nav only appears once there's something to read
       siteUrl: env.publicSiteUrl,
     });
   })
@@ -197,7 +197,7 @@ r.get(
 r.get('/experience', asyncHandler(async (req, res) => res.json({ items: await Experience.find({ visible: true }).sort({ order: 1 }).lean() })));
 r.get('/skills', asyncHandler(async (req, res) => res.json({ items: await Skill.find().sort({ group: 1, order: 1, name: 1 }).lean() })));
 
-/* --------------------------------------------------------------- Insights */
+/* --------------------------------------------------------------- Articles */
 r.get(
   '/articles',
   asyncHandler(async (req, res) => {

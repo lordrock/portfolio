@@ -8,8 +8,8 @@ A content-managed personal brand site: **design, full-stack web & mobile develop
 | API (`apps/api`) | Node.js + Express REST (`/api/v1`), Mongoose/MongoDB, Zod validation, JWT in httpOnly cookie + CSRF, Cloudinary, Resend |
 | Tests | 18 API integration tests (`npm test`) |
 
-Public pages: Home, About, Work (filter/search), 4 work templates (design gallery + lightbox, software case study, marketing campaign, Web3), Services, Insights (auto-hidden until an article is published), Contact, online Resume (+ PDF download), Privacy.
-Admin (`/admin`): dashboard, work editor with draft → preview → publish → archive, categories, services, testimonials, experience, skills, profile/availability/resume/GitHub links, inquiries inbox, media library, Insights editor.
+Public pages: Home, About, Work (filter/search), 4 work templates (design gallery + lightbox, software case study, marketing campaign, Web3), Services, Articles (auto-hidden until an article is published), Contact, online Resume (+ PDF download), Privacy.
+Admin (`/admin`): dashboard, work editor with draft → preview → publish → archive, categories, services, testimonials, experience, skills, profile/availability/resume/GitHub links, inquiries inbox, media library, Articles editor.
 
 ---
 

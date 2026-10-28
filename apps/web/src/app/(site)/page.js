@@ -21,7 +21,10 @@ export default async function Home() {
     apiGet('/testimonials'),
     ...['design', 'development', 'marketing', 'web3'].map((s) => apiGet(`/works?pillar=${s}&limit=3`)),
   ]);
-  const { profile, pillars } = site;
+  // Older/stale API deployments may return a partial site payload. Keep the
+  // public build available while the API deployment catches up.
+  const profile = site?.profile || null;
+  const pillars = Array.isArray(site?.pillars) ? site.pillars : [];
   const featured = featuredRes?.items || [];
   const testimonials = testimonialsRes?.items || [];
   const thumbs = Object.fromEntries(['design', 'development', 'marketing', 'web3'].map((s, i) => [s, pillarWorks[i]?.items || []]));
@@ -63,7 +66,7 @@ export default async function Home() {
 
       <section className="container pillar-index" aria-label="Areas of work">
         <ul>
-          {(pillars.length ? pillars : []).map((p) => {
+          {pillars.map((p) => {
             const key = pillarKey(p.slug);
             const items = thumbs[key] || [];
             return (

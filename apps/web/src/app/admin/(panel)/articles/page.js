@@ -32,7 +32,7 @@ export default function Page() {
 
   return (
     <>
-      <PageHeader title="Insights" sub="Articles and learning notes. The Insights page stays hidden until one is published."><Link href="/admin/articles/new" className="btn btn-primary">New article</Link></PageHeader>
+      <PageHeader title="Articles" sub="Writing, practical guides, and learning notes. The Articles page stays hidden until one is published."><Link href="/admin/articles/new" className="btn btn-primary">New article</Link></PageHeader>
       {error ? <p className="a-error" role="alert">{error}</p> : null}
       {actionError ? <p className="a-error" role="alert">{actionError}</p> : null}
       {loading ? <p role="status">Loading…</p> : data?.items?.length ? (
@@ -47,7 +47,7 @@ export default function Page() {
                   <button type="button" className="a-icon-btn" aria-label={`Restore ${a.title}`} title="Restore as draft" onClick={() => act(a, 'restore')} disabled={Boolean(busy)}><AdminActionIcon name="restore" /></button>
                 ) : (
                   <Confirm className="a-icon-btn a-icon-danger" ariaLabel={`${a.status === 'draft' ? 'Delete draft' : 'Archive'} ${a.title}`} title={a.status === 'draft' ? 'Delete draft' : 'Archive'}
-                    message={a.status === 'draft' ? `This permanently deletes “${a.title}”.` : `“${a.title}” will be removed from Insights and kept safely in the archive.`}
+                    message={a.status === 'draft' ? `This permanently deletes “${a.title}”.` : `“${a.title}” will be removed from Articles and kept safely in the archive.`}
                     onConfirm={() => act(a, a.status === 'draft' ? 'delete' : 'archive')} disabled={Boolean(busy)}><AdminActionIcon name="trash" /></Confirm>
                 )}
               </td>

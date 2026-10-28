@@ -197,7 +197,7 @@ test('categories: duplicate slugs blocked, pillars undeletable, subcategory need
   assert.equal((await owner.delete(`${api}/admin/categories/${dev._id}`).set('x-csrf-token', csrf)).status, 409);
 });
 
-test('public site endpoint, Insights hidden until an article is published', async () => {
+test('public site endpoint, Articles hidden until an article is published', async () => {
   const site = await request(app).get(`${api}/public/site`);
   assert.equal(site.status, 200);
   assert.equal(site.body.hasArticles, false);
