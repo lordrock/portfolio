@@ -17,5 +17,5 @@
     "test": "npm test -w apps/api"
   },
   "devDependencies": { "concurrently": "^9.0.1" },
-  "engines": { "node": ">=20.9" }
+  "engines": { "node": "22.x" }
 }

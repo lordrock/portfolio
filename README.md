@@ -98,6 +98,8 @@ Recommended: **API on Render/Railway/Fly**, **web on Vercel or Render**, **Mongo
 
 After first deploy run once (from a shell on the API service): `npm run seed` (optional) and `npm run admin:create`.
 
+If the production database already contains the single owner account under an old email, set `ADMIN_REPLACE_EXISTING=true` for one `npm run admin:create` run. Remove `ADMIN_PASSWORD` and `ADMIN_REPLACE_EXISTING` immediately after the reset succeeds.
+
 ### Web
 | Setting | Value |
 |---|---|
