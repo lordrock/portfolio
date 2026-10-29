@@ -248,7 +248,7 @@ export default function WorkEditor({ id }) {
         </div>
 
         <aside className="a-editor-side">
-          <section className="a-card a-sticky">
+          <section className="a-card a-publishing-card">
             <h2>Publishing</h2>
             <p>Status: <StatusBadge status={status} />{meta?.publishedAt ? <span className="a-hint"> since {fmtDate(meta.publishedAt)}</span> : null}</p>
             <div className="a-stack">

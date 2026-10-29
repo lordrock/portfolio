@@ -177,6 +177,7 @@ export function MediaPicker({ open, onOpenChange, onPick, kind = 'image' }) {
   const [search, setSearch] = useState('');
   const deferredSearch = useDeferredValue(search.trim());
   const [busy, setBusy] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState('');
   const [error, setError] = useState('');
   const [dragging, setDragging] = useState(false);
   const fileRef = useRef(null);
@@ -190,15 +191,30 @@ export function MediaPicker({ open, onOpenChange, onPick, kind = 'image' }) {
   }, [kind, deferredSearch]);
   useEffect(() => { if (open) load(); }, [open, load]);
 
-  async function upload(file) {
-    if (!file) return;
+  async function upload(files) {
+    const batch = [...(files || [])];
+    if (!batch.length) return;
     setBusy(true); setError('');
-    try {
-      const form = new FormData();
-      form.append('file', file);
-      const m = await api(`/media?kind=${kind}`, { method: 'POST', form });
-      setItems((l) => [m, ...l]);
-    } catch (e) { setError(e.message); } finally { setBusy(false); if (fileRef.current) fileRef.current.value = ''; }
+    const uploaded = [];
+    const failures = [];
+    for (const [index, file] of batch.entries()) {
+      setUploadProgress(`Uploading ${index + 1} of ${batch.length}: ${file.name}`);
+      try {
+        const form = new FormData();
+        form.append('file', file);
+        uploaded.push(await api(`/media?kind=${kind}`, { method: 'POST', form }));
+      } catch (e) {
+        failures.push(`${file.name}: ${e.message}`);
+      }
+    }
+    if (uploaded.length) {
+      setSearch('');
+      setItems((current) => [...uploaded.reverse(), ...current.filter((item) => !uploaded.some((newItem) => newItem._id === item._id))]);
+    }
+    if (failures.length) setError(failures.join(' '));
+    setUploadProgress(uploaded.length ? `${uploaded.length} file${uploaded.length === 1 ? '' : 's'} uploaded.` : 'Upload failed.');
+    setBusy(false);
+    if (fileRef.current) fileRef.current.value = '';
   }
 
   return (
@@ -219,12 +235,13 @@ export function MediaPicker({ open, onOpenChange, onPick, kind = 'image' }) {
               onDragEnter={(e) => { e.preventDefault(); if (!busy) setDragging(true); }}
               onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = busy ? 'none' : 'copy'; }}
               onDragLeave={(e) => { if (!e.currentTarget.contains(e.relatedTarget)) setDragging(false); }}
-              onDrop={(e) => { e.preventDefault(); setDragging(false); if (!busy) upload(e.dataTransfer.files?.[0]); }}
+              onDrop={(e) => { e.preventDefault(); e.stopPropagation(); setDragging(false); if (!busy) upload(e.dataTransfer.files); }}
             >
-              <input id={`picker-upload-${kind}`} ref={fileRef} className="sr-only" type="file" accept={kind === 'document' ? DOCUMENT_ACCEPT : IMAGE_ACCEPT} onChange={(e) => upload(e.target.files?.[0])} disabled={busy} aria-label="Upload a file" />
-              <span>{busy ? 'Uploading…' : 'Drop a file here or'}</span>
-              <label className="btn btn-quiet btn-sm" htmlFor={`picker-upload-${kind}`}>Choose file</label>
+              <input id={`picker-upload-${kind}`} ref={fileRef} className="sr-only" type="file" multiple accept={kind === 'document' ? DOCUMENT_ACCEPT : IMAGE_ACCEPT} onChange={(e) => upload(e.target.files)} disabled={busy} aria-label={`Upload one or more ${kind === 'document' ? 'documents' : 'images'}`} />
+              <span>{busy ? uploadProgress : `Drop one or more ${kind === 'document' ? 'documents' : 'images'} here, or`}</span>
+              <label className="btn btn-quiet btn-sm" htmlFor={`picker-upload-${kind}`}>Choose files</label>
             </div>
+            {uploadProgress && !busy ? <p className="a-hint" role="status">{uploadProgress}</p> : null}
             <div className="a-media-search a-media-search-compact">
               <label htmlFor={`picker-search-${kind}`}>Search existing {kind === 'document' ? 'documents' : 'images'}</label>
               <div className="a-search-input">

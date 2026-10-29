@@ -125,6 +125,7 @@ td.a-actions { white-space: nowrap; }
 .a-editor { display: grid; grid-template-columns: minmax(0, 1fr) 20rem; gap: 1.5rem; align-items: start; }
 .a-editor-main { min-width: 0; }
 .a-sticky { position: sticky; top: 4.4rem; }
+.a-publishing-card { position: relative; }
 .a-stack { display: grid; gap: 0.5rem; }
 .a-stack .btn { width: 100%; }
 .a-danger { color: var(--danger) !important; }
