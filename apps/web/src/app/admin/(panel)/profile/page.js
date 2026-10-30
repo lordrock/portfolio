@@ -64,7 +64,7 @@ export default function Page() {
           <button type="button" className="btn btn-quiet btn-sm" onClick={() => setPick(true)}>{form.resume?.url ? 'Replace PDF' : 'Upload or choose PDF'}</button>
           {form.resume?.url ? <button type="button" className="btn btn-quiet btn-sm" onClick={clearResume}>Remove PDF</button> : null}
         </div>
-        <MediaPicker open={pick} onOpenChange={setPick} kind="document" onPick={setResume} />
+        <MediaPicker open={pick} onOpenChange={setPick} kind="document" onPick={setResume} onUpload={(items) => { setResume(items[0]); setPick(false); }} />
       </section>
 
       <section className="a-card"><h2>How I work</h2>

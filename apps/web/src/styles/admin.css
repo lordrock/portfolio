@@ -159,6 +159,7 @@ td.a-actions { white-space: nowrap; }
 .a-dropzone-icon { width: 2.7rem; height: 2.7rem; display: grid; place-items: center; border-radius: 0.8rem; background: color-mix(in srgb, var(--accent) 10%, var(--surface)); color: var(--accent); font-size: 1.25rem; font-weight: 750; }
 .a-dropzone.is-dragging { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, var(--surface)); box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 10%, transparent); }
 .a-dropzone.is-busy { opacity: 0.65; pointer-events: none; }
+.a-upload-summary { margin: -0.85rem 0 1.25rem; }
 .a-dropzone-compact { display: flex; justify-content: center; margin-bottom: 0; padding: 1rem; }
 .a-media-grid, .a-media-lib { display: grid; grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr)); gap: 0.8rem; }
 .a-media-grid button { width: 100%; display: grid; gap: 0.3rem; padding: 0.4rem; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); text-align: left; font-size: 0.8rem; }

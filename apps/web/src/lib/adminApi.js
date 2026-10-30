@@ -43,7 +43,10 @@ export async function api(path, { method = 'GET', body, form } = {}) {
       window.dispatchEvent(new Event('admin:unauthorized'));
     }
     const detail = data?.details?.length ? `${data.error}: ${data.details.map((d) => `${d.path} ${d.message}`).join('; ')}` : data?.error;
-    throw new ApiError(detail || `Request failed (${res.status})`, res.status, data?.details);
+    const fallback = res.status === 413
+      ? 'This file is too large for the hosted upload route. Images are automatically optimized; documents must be under 4 MB.'
+      : `Request failed (${res.status})`;
+    throw new ApiError(detail || fallback, res.status, data?.details);
   }
   return data;
 }

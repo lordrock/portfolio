@@ -2,7 +2,7 @@
 import { createContext, useCallback, useContext, useDeferredValue, useEffect, useId, useRef, useState } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { api, getIn } from '@/lib/adminApi';
-import { DOCUMENT_ACCEPT, IMAGE_ACCEPT, fileBadge } from '@/lib/media';
+import { DOCUMENT_ACCEPT, IMAGE_ACCEPT, fileBadge, prepareMediaUpload } from '@/lib/media';
 
 /* ------------------------------------------------------------------ Toasts */
 const ToastCtx = createContext({ push: () => {} });
@@ -172,7 +172,7 @@ export function Confirm({ children, message, onConfirm, className = 'btn btn-qui
 }
 
 /* ----------------------------------------------------------- Media picking */
-export function MediaPicker({ open, onOpenChange, onPick, kind = 'image' }) {
+export function MediaPicker({ open, onOpenChange, onPick, onUpload, kind = 'image' }) {
   const [items, setItems] = useState([]);
   const [search, setSearch] = useState('');
   const deferredSearch = useDeferredValue(search.trim());
@@ -200,8 +200,9 @@ export function MediaPicker({ open, onOpenChange, onPick, kind = 'image' }) {
     for (const [index, file] of batch.entries()) {
       setUploadProgress(`Uploading ${index + 1} of ${batch.length}: ${file.name}`);
       try {
+        const prepared = await prepareMediaUpload(file);
         const form = new FormData();
-        form.append('file', file);
+        form.append('file', prepared.file);
         uploaded.push(await api(`/media?kind=${kind}`, { method: 'POST', form }));
       } catch (e) {
         failures.push(`${file.name}: ${e.message}`);
@@ -209,7 +210,8 @@ export function MediaPicker({ open, onOpenChange, onPick, kind = 'image' }) {
     }
     if (uploaded.length) {
       setSearch('');
-      setItems((current) => [...uploaded.reverse(), ...current.filter((item) => !uploaded.some((newItem) => newItem._id === item._id))]);
+      setItems((current) => [...uploaded.slice().reverse(), ...current.filter((item) => !uploaded.some((newItem) => newItem._id === item._id))]);
+      onUpload?.(uploaded);
     }
     if (failures.length) setError(failures.join(' '));
     setUploadProgress(uploaded.length ? `${uploaded.length} file${uploaded.length === 1 ? '' : 's'} uploaded.` : 'Upload failed.');
@@ -287,7 +289,12 @@ export function ImageField({ label, value, onChange, hint }) {
         </div>
       </div>
       {hint ? <p className="a-hint">{hint}</p> : null}
-      <MediaPicker open={open} onOpenChange={setOpen} onPick={(m) => onChange(toImage(m))} />
+      <MediaPicker
+        open={open}
+        onOpenChange={setOpen}
+        onPick={(m) => onChange(toImage(m))}
+        onUpload={(items) => { onChange(toImage(items[0])); setOpen(false); }}
+      />
     </div>
   );
 }
@@ -316,7 +323,12 @@ export function GalleryField({ label, value = [], onChange, hint }) {
         ))}
       </ul>
       <button type="button" className="btn btn-quiet btn-sm" onClick={() => setOpen(true)}>Add image</button>
-      <MediaPicker open={open} onOpenChange={setOpen} onPick={(m) => onChange([...value, { ...toImage(m), caption: '' }])} />
+      <MediaPicker
+        open={open}
+        onOpenChange={setOpen}
+        onPick={(m) => onChange([...value, { ...toImage(m), caption: '' }])}
+        onUpload={(items) => { onChange([...value, ...items.map((m) => ({ ...toImage(m), caption: '' }))]); setOpen(false); }}
+      />
     </fieldset>
   );
 }

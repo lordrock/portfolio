@@ -1,7 +1,7 @@
 'use client';
 import { useDeferredValue, useRef, useState } from 'react';
 import { api } from '@/lib/adminApi';
-import { MEDIA_ACCEPT, fileBadge, isImageFile } from '@/lib/media';
+import { MEDIA_ACCEPT, fileBadge, isImageFile, prepareMediaUpload } from '@/lib/media';
 import { Confirm, PageHeader, useLoad, useToast } from '@/components/admin/ui';
 
 export default function Page() {
@@ -10,17 +10,25 @@ export default function Page() {
   const deferredSearch = useDeferredValue(search.trim());
   const { data, error, loading, reload } = useLoad(`/media?limit=100${deferredSearch ? `&q=${encodeURIComponent(deferredSearch)}` : ''}`);
   const [busy, setBusy] = useState(false);
+  const [progress, setProgress] = useState('');
   const [dragging, setDragging] = useState(false);
   const ref = useRef(null);
 
   async function upload(files) {
+    const batch = [...files];
+    if (!batch.length) return;
     setBusy(true);
-    for (const file of files) {
+    let succeeded = 0;
+    for (const [index, file] of batch.entries()) {
+      setProgress(`Uploading ${index + 1} of ${batch.length}: ${file.name}`);
       try {
-        const form = new FormData(); form.append('file', file);
-        await api(`/media?kind=${isImageFile(file) ? 'image' : 'document'}`, { method: 'POST', form });
+        const prepared = await prepareMediaUpload(file);
+        const form = new FormData(); form.append('file', prepared.file);
+        await api(`/media?kind=${isImageFile(prepared.file) ? 'image' : 'document'}`, { method: 'POST', form });
+        succeeded += 1;
       } catch (e) { toast.push(`${file.name}: ${e.message}`, 'error'); }
     }
+    setProgress(`${succeeded} of ${batch.length} files uploaded.`);
     setBusy(false); if (ref.current) ref.current.value = ''; reload();
   }
   async function setAlt(m, alt) { try { await api(`/media/${m._id}`, { method: 'PATCH', body: { alt } }); toast.push('Alt text saved'); } catch (e) { toast.push(e.message, 'error'); } }
@@ -34,13 +42,14 @@ export default function Page() {
         onDragEnter={(e) => { e.preventDefault(); if (!busy) setDragging(true); }}
         onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = busy ? 'none' : 'copy'; }}
         onDragLeave={(e) => { if (!e.currentTarget.contains(e.relatedTarget)) setDragging(false); }}
-        onDrop={(e) => { e.preventDefault(); setDragging(false); if (!busy) upload([...e.dataTransfer.files]); }}
+        onDrop={(e) => { e.preventDefault(); e.stopPropagation(); setDragging(false); if (!busy) upload([...e.dataTransfer.files]); }}
       >
         <input id="media-upload" ref={ref} className="sr-only" type="file" multiple accept={MEDIA_ACCEPT} onChange={(e) => upload([...e.target.files])} disabled={busy} />
         <div className="a-dropzone-icon" aria-hidden="true">↑</div>
-        <div><strong>{busy ? 'Uploading files…' : 'Drop files here'}</strong><p>Images, PDF, Word, Excel, PowerPoint, OpenDocument, TXT, Markdown or CSV.</p></div>
+        <div><strong>{busy ? progress : 'Drop files here'}</strong><p>Images are optimized when needed. Documents must be under 4 MB.</p></div>
         <label className="btn btn-primary" htmlFor="media-upload">Choose files</label>
       </div>
+      {progress && !busy ? <p className="a-hint a-upload-summary" role="status">{progress}</p> : null}
       <div className="a-media-search">
         <label htmlFor="media-search">Search media</label>
         <div className="a-search-input">
