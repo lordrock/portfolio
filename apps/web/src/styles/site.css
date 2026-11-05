@@ -46,7 +46,10 @@
   .burger-lines { transform: translateY(-2.5px); }
   .burger-lines[data-open='true'] { transform: rotate(45deg); }
   .burger-lines[data-open='true']::before { transform: translateY(-5px) rotate(-90deg); top: 5px; }
-  .nav { position: fixed; inset: 4.25rem 0 0 0; background: var(--paper); padding: 1.5rem var(--gutter); display: none; overflow-y: auto; }
+  /* Anchor the mobile panel below the header instead of using fixed positioning
+     inside a backdrop-filtered element. Filters create a containing block and
+     previously collapsed the supposedly full-screen menu to the header frame. */
+  .nav { position: absolute; top: calc(100% + 0.4rem); right: 0; left: 0; height: calc(100dvh - 5.45rem); min-height: 18rem; background: var(--paper); padding: 1.5rem var(--gutter) max(1.5rem, env(safe-area-inset-bottom)); display: none; overflow-y: auto; overscroll-behavior: contain; }
   .nav[data-open='true'] { display: block; }
   .nav ul { flex-direction: column; gap: 0; }
   .nav a { font-family: var(--font-serif); font-size: var(--step-2); padding: 0.9rem 0; border-bottom: 1px solid var(--line); border-radius: 0; box-shadow: none !important; }
@@ -498,7 +501,7 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 0; 
 
 @media (max-width: 860px) {
   .site-header { top: 0.4rem; width: calc(100% - 0.8rem); }
-  .nav { inset: 4.65rem 0.4rem 0.4rem; border: 1px solid var(--line); border-radius: 1rem; background: color-mix(in srgb, var(--paper) 96%, transparent); box-shadow: 0 18px 42px rgba(15, 23, 34, 0.14); }
+  .nav { border: 1px solid var(--line); border-radius: 1rem; background: color-mix(in srgb, var(--paper) 96%, transparent); box-shadow: 0 18px 42px rgba(15, 23, 34, 0.14); }
   .hero { min-height: auto; padding-top: 5.5rem; }
   .hero::after { display: none; }
   .hero::before { right: -3rem; top: 5rem; opacity: 0.45; }
@@ -564,6 +567,8 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 0; 
   .work-links { display: grid; }
   .work-links .btn { width: 100%; }
   .work-cover { margin-inline: calc(var(--gutter) * -1); border-radius: 0; }
+  .gallery-masonry { columns: initial; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.65rem; }
+  .gallery-masonry li { min-width: 0; margin-bottom: 0; }
   .two-col { gap: 1.5rem; }
   .inline-cta { align-items: stretch; }
   .inline-cta .btn { width: 100%; }
